@@ -85,14 +85,18 @@ impl<'a, 'b> DrawingBackend for RatatuiBackend<'a, 'b> {
         style: &S,
         _fill: bool,
     ) -> std::result::Result<(), DrawingErrorKind<Self::ErrorType>> {
-        let (x1, y1) = backend_to_canvas_coords(coord1, self.size);
-        let (x2, y2) = backend_to_canvas_coords(coord2, self.size);
+        let (start, stop) = (
+            (coord1.0.min(coord2.0) + 1, coord1.1.min(coord2.1) + 1),
+            (coord1.0.max(coord2.0), coord1.1.max(coord2.1)),
+        );
+        let (x1, y1) = backend_to_canvas_coords(start, self.size);
+        let (x2, y2) = backend_to_canvas_coords(stop, self.size);
 
         self.canvas.draw(&canvas::Rectangle {
-            x:      x1.min(x2),
-            y:      y1.min(y2),
-            width:  (x2 - x1).abs(),
-            height: (y2 - y1).abs(),
+            x:      x1,
+            y:      y1,
+            width:  x2 - x1,
+            height: y2 - y1,
             color:  convert_color(style.color()),
         });
         Ok(())
